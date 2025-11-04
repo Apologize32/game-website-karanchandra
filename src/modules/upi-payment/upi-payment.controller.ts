@@ -110,9 +110,21 @@ export class UpiPaymentController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   async getAllPayments(
+    
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('status') status?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ) {
     try {
-      const payments = await this.upiPaymentService.getAllPayments();
+      const payments = await this.upiPaymentService.getAllPayments({
+        page,
+        limit,
+        status,
+        startDate,
+        endDate,
+      });
 
       return {
         success: true,
