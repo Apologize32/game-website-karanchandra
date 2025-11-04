@@ -219,21 +219,76 @@ export class UpiPaymentService {
     }
   }
 
-  async getAllPayments() {
+  async getAllPayments({
+    page = 1,
+    limit = 10,
+    status,
+    startDate,
+    endDate,
+  }: GetAllPaymentsParams) {
     try {
-      const data = await this.prisma.payment.findMany({
-        include: {
-          items: {
-            include: {
-              product: true,
-            },
-          },
+      const skip = (page - 1) * limit;
+
+      // Build where clause for filtering
+      const where: any = {
+        deleted_at: null,
+      };
+
+      if (status) {
+        where.status = status;
+      }
+
+      if (startDate || endDate) {
+        where.created_at = {};
+        if (startDate) {
+          where.created_at.gte = new Date(startDate);
+        }
+        if (endDate) {
+          where.created_at.lte = new Date(endDate);
+        }
+      }
+
+      // Get total count for pagination
+      const total = await this.prisma.payment.count({ where });
+
+      // Get paginated payments
+      const payments = await this.prisma.payment.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          created_at: 'desc',
+        },
+        select: {
+          id: true,
+          order_id: true,
+          amount: true,
+          currency: true,
+          status: true,
+          customer_name: true,
+          customer_email: true,
+          customer_phone: true,
+          customer_address: true,
+          description: true,
+          notes: true,
+          created_at: true,
+          updated_at: true,
         },
       });
-      console.log(data);
-      return data;
+
+      return {
+        payments,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
     } catch (error) {
-      throw new BadRequestException(error.message || 'Failed to fetch payments');
+      throw new BadRequestException(
+        error?.message || 'Failed to fetch payments'
+      );
     }
   }
 
