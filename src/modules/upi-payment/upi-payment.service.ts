@@ -236,6 +236,8 @@ export class UpiPaymentService {
     endDate,
   }: GetAllPaymentsParams) {
     try {
+      page = Number(page);
+      limit = Number(limit);
       const skip = (page - 1) * limit;
 
       // Build where clause for filtering
