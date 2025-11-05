@@ -5,6 +5,15 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as qs from 'querystring';
 
+interface GetAllPaymentsParams {
+  page: number;
+  limit: number;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+
 @Injectable()
 export class UpiPaymentService {
   private readonly ezUpiApiKey: string;
