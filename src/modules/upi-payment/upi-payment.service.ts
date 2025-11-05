@@ -277,14 +277,15 @@ export class UpiPaymentService {
         },
       });
 
-      return data
-        // pagination: {
-        //   total,
-        //   page,
-        //   limit,
-        //   totalPages: Math.ceil(total / limit),
-        // },
-      // };
+      return {
+        data,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
     } catch (error) {
       throw new BadRequestException(
         error?.message || 'Failed to fetch payments'
