@@ -261,32 +261,24 @@ export class UpiPaymentService {
       const total = await this.prisma.payment.count({ where });
 
       // Get paginated payments
-      const payments = await this.prisma.payment.findMany({
+      const data = await this.prisma.payment.findMany({
         where,
         skip,
         take: limit,
         orderBy: {
           created_at: 'desc',
         },
-        select: {
-          id: true,
-          order_id: true,
-          amount: true,
-          currency: true,
-          status: true,
-          customer_name: true,
-          customer_email: true,
-          customer_phone: true,
-          customer_address: true,
-          description: true,
-          notes: true,
-          created_at: true,
-          updated_at: true,
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
         },
       });
 
       return {
-        payments,
+        data,
         pagination: {
           total,
           page,
